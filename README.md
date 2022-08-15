@@ -2,6 +2,10 @@
 
 A tool to create engine noises for beamng!
 
+# Dependencies
+
+This app requires .NET 6.0 to run.
+
 # Simple Usage
 
 1. Drag and drop some percussive sounds into the samples area.
