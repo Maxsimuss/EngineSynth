@@ -12,3 +12,7 @@ A tool to create engine noises for beamng!
 2. Select the number of cylinders, and power strokes per revolution.
 3. Name your engine, select the folder of your mod and hit render!
 4. You will get two beamng sounds: enginename_engine and enginename_exhaust
+
+# User Interface
+
+![User Interface](/demo/img/UI.png)
