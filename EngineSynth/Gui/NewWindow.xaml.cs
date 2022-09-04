@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EngineSynth.Gui.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,24 +11,18 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace EngineSynth.Gui
 {
     /// <summary>
-    /// Interaction logic for DraggableElemnt.xaml
+    /// Interaction logic for NewWindow.xaml
     /// </summary>
-    public partial class DraggableElement : UserControl
+    public partial class NewWindow : Window
     {
-        public int Index = 0;
-        public string File;
-        public DraggableElement(string File, int Index = 0)
+        public NewWindow()
         {
             InitializeComponent();
-            this.Index = Index;
-            this.File = File;
-            TextBlock.Text = System.IO.Path.GetFileName(File);
         }
     }
 }

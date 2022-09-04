@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EngineSynth.Gui.Model;
+using EngineSynth.Gui.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +11,24 @@ namespace EngineSynth.Gui
 {
     public partial class App : Application
     {
+        private ApplicationModel applicationModel;
+
         public App()
         {
+            applicationModel = new ApplicationModel();
             InitializeComponent();
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            //MainWindow = new MainWindow()
+            MainWindow = new NewWindow()
+            {
+                DataContext = new MainViewModel(applicationModel)
+            };
+            MainWindow.Show();
         }
     }
 }

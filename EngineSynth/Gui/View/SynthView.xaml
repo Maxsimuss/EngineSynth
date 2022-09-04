@@ -1,0 +1,271 @@
+﻿<UserControl x:Class="EngineSynth.Gui.View.SynthView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:EngineSynth.Gui.View"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:viewmodel="clr-namespace:EngineSynth.Gui.ViewModel" 
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             d:DataContext="{d:DesignInstance Type=viewmodel:SynthViewModel}"
+             mc:Ignorable="d" 
+             d:Height="700" d:Width="1200" Background="#ecf0f1">
+    <UserControl.Resources>
+        
+
+        <Style TargetType="Button" BasedOn="{StaticResource Btn}" x:Key="PointBtn">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Margin" Value="0,8"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ListBox Background="Transparent" ItemsSource="{Binding Settings}" HorizontalContentAlignment="Stretch" BorderThickness="0" Grid.Row="0" Margin="10">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Slider Tag="{Binding Name}" Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Path=Value}" TickFrequency="{Binding Increment}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.Style>
+                    <Style TargetType="{x:Type ListBox}">
+                        <Style.Setters>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBox}">
+                                        <hc:ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" IsInertiaEnabled="True" CanContentScroll="False">
+                                            <ItemsPresenter/>
+                                        </hc:ScrollViewer>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style.Setters>
+                    </Style>
+                </ListBox.Style>
+            </ListBox>
+            <Border Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" IsHitTestVisible="False" Height="10" Opacity=".25">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                        <GradientStop Color="Transparent" Offset="1"/>
+                        <GradientStop Color="#2c3e50" Offset="0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Border Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Right" IsHitTestVisible="False" Width="10" Opacity=".25">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="1,0" EndPoint="0,0">
+                        <GradientStop Color="Transparent" Offset="1"/>
+                        <GradientStop Color="#2c3e50" Offset="0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseDown" >
+                        <i:InvokeCommandAction Command="{Binding AddFilterCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <ListBox Background="Transparent" ItemsSource="{Binding Filters}" BorderThickness="0" ScrollViewer.CanContentScroll="False">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="Transparent" Height="215" Width="215">
+                                <Border Background="#ecf0f1" CornerRadius="10" Height="200" Width="200" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="8">
+                                    <Border.Effect>
+                                        <DropShadowEffect ShadowDepth="0" Opacity=".25" BlurRadius="10" Color="#2c3e50"/>
+                                    </Border.Effect>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="1*"/>
+                                            <ColumnDefinition Width="1*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="1*"/>
+                                            <RowDefinition Height="1*"/>
+                                        </Grid.RowDefinitions>
+                                        <local:Knob Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Margin="5"  InnerRadius="30" MarkerRadius="4" Minimum="20" Maximum="20000" Value="{Binding Frequency, Mode=TwoWay}" Label="Freq: {0:0}"/>
+                                        <local:Knob Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Margin="5" InnerRadius="30" MarkerRadius="4" Value="{Binding Q, Mode=TwoWay}" Minimum="0.01" Maximum="1" Label="Q: {0:0.00}"/>
+                                        <local:Knob Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1" Margin="5" InnerRadius="30" MarkerRadius="4" Value="{Binding Gain, Mode=TwoWay}" Minimum="-30" Maximum="30" Label="Gain: {0:0.00}"/>
+                                            
+                                        <Button Grid.Column="0" Style="{StaticResource PointBtn}" Background="#e74c3c" Command="{Binding RemoveFilterCommand}"/>
+                                        <Button Grid.Column="3" Style="{StaticResource PointBtn}" Background="#2ecc71" Command="{Binding AddFilterCommand}"/>
+                                    </Grid>
+                                </Border>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.Style>
+                        <Style TargetType="ListBox">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBox}">
+                                        <hc:ScrollViewer HorizontalScrollBarVisibility="Auto" CanContentScroll="False" VerticalScrollBarVisibility="Disabled" IsInertiaEnabled="True" Orientation="Horizontal">
+                                            <ItemsPresenter/>
+                                        </hc:ScrollViewer>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Filters.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Hidden"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.Style>
+                </ListBox>
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30" Foreground="#bdc3c7" Padding="20" TextAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Filters.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                    Click to add a peaking filter.
+                </TextBlock>
+            </Grid>
+        </Grid>
+        <hc:ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled" IsInertiaEnabled="True">
+            <StackPanel Margin="10">
+                <ListBox ItemsSource="{Binding Samples}" VerticalAlignment="Top" HorizontalAlignment="Stretch" BorderThickness="0" ScrollViewer.CanContentScroll="False" dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#ecf0f1" VerticalAlignment="Top" HorizontalAlignment="Stretch" Padding="8" Margin="4">
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="0" Opacity=".25" BlurRadius="10" Color="#2c3e50"/>
+                                </Border.Effect>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="{Binding Name}"/>
+                                    <Button Grid.Column="1" Style="{StaticResource Btn}" Background="#2980b9" Foreground="#ecf0f1" Command="{Binding RemoveCommand}">Remove</Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.Style>
+                        <Style TargetType="ListBox">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBox}">
+                                            <ItemsPresenter/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.Style>
+                </ListBox>
+                <Button AllowDrop="True" Drop="SamplePanelFileDrop" Margin="5" Background="#ecf0f1" FontSize="14" Foreground="#2c3e50" VerticalAlignment="Top" Height="36" Width="160" HorizontalAlignment="Center" Style="{StaticResource Btn}" Command="{Binding LoadSampleCommand}">Drop samples here</Button>
+            </StackPanel>
+        </hc:ScrollViewer>
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="4*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.ColumnSpan="2"  VerticalAlignment="Bottom" HorizontalAlignment="Stretch" IsHitTestVisible="False" Height="10" Opacity=".25">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                        <GradientStop Color="Transparent" Offset="1"/>
+                        <GradientStop Color="#2c3e50" Offset="0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+            <Button Grid.Row="1" Grid.ColumnSpan="2" Background="#2980b9" Foreground="#ecf0f1" Margin="10" FontSize="18" Style="{StaticResource Btn}" Command="{Binding SelectPathCommand}">Select Mod Folder</Button>
+            <Button Grid.Row="2" Background="#2980b9" Foreground="#ecf0f1" Margin="10" Style="{StaticResource Btn}" Command="{Binding LoadCommand}">Load</Button>
+            <Button Grid.Row="3" Background="#2ecc71" Foreground="#ecf0f1" Margin="10" Style="{StaticResource Btn}" Command="{Binding SaveCommand}">Save</Button>
+
+            <Border Margin="10" Grid.Column="1" Grid.Row="2" Background="#2980b9"  CornerRadius="10">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="2" Opacity=".25" BlurRadius="5" Color="#2c3e50"/>
+                </Border.Effect>
+                <TextBox Style="{StaticResource InputField}" Text="{Binding EngineName}"/>
+            </Border>
+            <Button Grid.Row="3" Grid.Column="1" Margin="10" Foreground="#ecf0f1" IsEnabled="{Binding Path=IsDone}" Command="{Binding RenderCommand}" FontSize="18">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource Btn}">
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#e74c3c" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="True">
+                                <Setter Property="Background" Value="#2ecc71" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                Render
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>
