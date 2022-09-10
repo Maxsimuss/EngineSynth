@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>preview</LangVersion>
@@ -23,12 +23,23 @@
     <ApplicationDefinition Include="Gui\App.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0-preview4" />
     <PackageReference Include="CSCore" Version="1.2.1.2" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
     <PackageReference Include="HandyControl" Version="3.3.0" />
     <PackageReference Include="MathConverter" Version="2.1.0-alpha0001" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
+    <Target Name="RemoveDuplicateAnalyzers" BeforeTargets="CoreCompile">
+	    <!-- Work around https://github.com/dotnet/wpf/issues/6792 -->
+
+	    <ItemGroup>
+		    <FilteredAnalyzer Include="@(Analyzer-&gt;Distinct())" />
+		    <Analyzer Remove="@(Analyzer)" />
+		    <Analyzer Include="@(FilteredAnalyzer)" />
+	    </ItemGroup>
+    </Target>
 </Project>

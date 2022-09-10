@@ -13,21 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace EngineSynth.Gui
+namespace EngineSynth.Gui.View
 {
     /// <summary>
-    /// Interaction logic for DraggableElemnt.xaml
+    /// Interaction logic for FilterView.xaml
     /// </summary>
-    public partial class DraggableElement : UserControl
+    public partial class FilterView : UserControl
     {
-        public int Index = 0;
-        public string File;
-        public DraggableElement(string File, int Index = 0)
+        public FilterView()
         {
             InitializeComponent();
-            this.Index = Index;
-            this.File = File;
-            TextBlock.Text = System.IO.Path.GetFileName(File);
         }
     }
 }

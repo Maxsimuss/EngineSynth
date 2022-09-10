@@ -11,18 +11,27 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace EngineSynth.Gui
+namespace EngineSynth.Gui.View
 {
     /// <summary>
-    /// Interaction logic for NewWindow.xaml
+    /// Interaction logic for SynthView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SynthView : UserControl
     {
-        public MainWindow()
+        public SynthView()
         {
             InitializeComponent();
+        }
+
+        //
+        // Breaking the MVVM principle
+        //
+        private void SamplePanelFileDrop(object sender, DragEventArgs e)
+        {
+            ((SynthViewModel)this.DataContext).FileDrop(e);
         }
     }
 }
