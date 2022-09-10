@@ -14,6 +14,7 @@ namespace EngineSynth.Config
     {
         public List<string> Samples = new List<string>();
         public List<FilterSetting> Filters = new List<FilterSetting>();
+        public List<ResonanceSetting> Resonances = new List<ResonanceSetting>();
         public Dictionary<string, double> Settings = new Dictionary<string, double>();
 
         public void Save(string path)
@@ -31,6 +32,7 @@ namespace EngineSynth.Config
             Samples = cfg.Samples;
             Filters = cfg.Filters;
             Settings = cfg.Settings;
+            Resonances = cfg.Resonances;
 
             return true;
         }

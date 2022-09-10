@@ -23,8 +23,7 @@ namespace EngineSynth.Gui
         {
             base.OnStartup(e);
 
-            //MainWindow = new MainWindow()
-            MainWindow = new NewWindow()
+            MainWindow = new MainWindow()
             {
                 DataContext = new MainViewModel(applicationModel)
             };

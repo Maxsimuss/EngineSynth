@@ -46,10 +46,10 @@ namespace EngineSynth.Gui.ViewModel
     {
         private SynthModel synthModel;
 
-        public string EngineName 
-        { 
-            get => synthModel.Name; 
-            set 
+        public string EngineName
+        {
+            get => synthModel.Name;
+            set
             {
                 synthModel.Name = value;
                 OnPropertyChanged(nameof(EngineName));
@@ -59,13 +59,17 @@ namespace EngineSynth.Gui.ViewModel
         public ReorderableListViewModel Samples { get => new ReorderableListViewModel(synthModel.Samples); }
         public List<SettingViewModel> Settings { get => synthModel.Settings.Select(s => new SettingViewModel(s)).ToList(); }
         public List<FilterSettingViewModel> Filters { get => synthModel.Filters.Select(s => new FilterSettingViewModel(s, this, synthModel)).ToList(); }
+        public List<ResonanceSettingViewModel> Resonances { get => synthModel.Resonances.Select(s => new ResonanceSettingViewModel(s, this, synthModel)).ToList(); }
 
         public bool IsDone { get => !synthModel.IsBusy; }
+
+        [ObservableProperty]
+        bool isEqShown = true;
 
         [RelayCommand]
         private void Render()
         {
-            if(synthModel.ExportPath != string.Empty || TrySelectPath())
+            if (synthModel.ExportPath != string.Empty || TrySelectPath())
             {
                 synthModel.Render();
             }
@@ -138,6 +142,24 @@ namespace EngineSynth.Gui.ViewModel
             synthModel.AddFilter();
         }
 
+        [RelayCommand]
+        void AddResonance()
+        {
+            synthModel.AddResonance();
+        }
+
+        [RelayCommand]
+        void ShowEq()
+        {
+            IsEqShown = true;
+        }
+
+        [RelayCommand]
+        void HideEq()
+        {
+            IsEqShown = false;
+        }
+
         public void FileDrop(DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -148,16 +170,6 @@ namespace EngineSynth.Gui.ViewModel
                 synthModel.Samples.Add(file);
             }
             OnPropertyChanged(nameof(Samples));
-        }
-
-        public void DragOver(IDropInfo dropInfo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Drop(IDropInfo dropInfo)
-        {
-            throw new NotImplementedException();
         }
 
         public SynthViewModel(SynthModel model)

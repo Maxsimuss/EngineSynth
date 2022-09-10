@@ -18,9 +18,9 @@ namespace EngineSynth.Gui
     /// <summary>
     /// Interaction logic for NewWindow.xaml
     /// </summary>
-    public partial class NewWindow : Window
+    public partial class MainWindow : Window
     {
-        public NewWindow()
+        public MainWindow()
         {
             InitializeComponent();
         }

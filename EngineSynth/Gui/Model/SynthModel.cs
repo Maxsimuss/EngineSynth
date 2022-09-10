@@ -31,12 +31,14 @@ namespace EngineSynth.Gui.Model
 
         public List<string> Samples;
         public List<FilterSetting> Filters;
+        public List<ResonanceSetting> Resonances;
         public List<Setting> Settings;
         private readonly Setting CylinderCount, PowerPerRev, Randomness, FilterFreq, OffLoadFilter, Pitch, MinRPM, MaxRPM, RPMInc, OnGain, OffGain, RpmGain, BaseFreqGain;
 
         public SynthModel()
         {
             Filters = new List<FilterSetting>();
+            Resonances = new List<ResonanceSetting>();
             Samples = new List<string>();
             Settings = new List<Setting>();
 
@@ -63,7 +65,9 @@ namespace EngineSynth.Gui.Model
 
             return setting;
         }
-
+        
+        
+        //bad
         public void AddFilter()
         {
             Filters.Add(new FilterSetting());
@@ -77,6 +81,22 @@ namespace EngineSynth.Gui.Model
 
             OnStateChanged?.Invoke();
         }
+
+        public void AddResonance()
+        {
+            Resonances.Add(new ResonanceSetting());
+
+            OnStateChanged?.Invoke();
+        }
+
+        public void RemoveResonance(ResonanceSetting res)
+        {
+            Resonances.Remove(res);
+
+            OnStateChanged?.Invoke();
+        }
+        //
+
 
         public void Render()
         {
@@ -195,7 +215,7 @@ namespace EngineSynth.Gui.Model
             result.LoopEnd = positions[last];
             float baseFreq = rpm * PowerPerRev / 60F;
 
-            return PostProcess(result, baseFreq, gain + MathF.Pow(rpm / 5000f, 4) * RpmGain);
+            return PostProcess(result, baseFreq, gain + rpm / 1000f * RpmGain);
         }
 
         private float[] PostProcess(Sample input, float baseFreq, float gain)
@@ -224,6 +244,11 @@ namespace EngineSynth.Gui.Model
                 //new PeakFilter(SampleRate, baseFreq / 1.5, 5, BaseFreqGain),
                 //new PeakFilter(SampleRate, baseFreq / 2, 5, BaseFreqGain)
             };
+
+            foreach (ResonanceSetting f in Resonances)
+            {
+                filters.Add(new PeakFilter(SampleRate, baseFreq * f.Multiplier, 5, BaseFreqGain * f.Gain));
+            }
 
             for (int i = 0; i < Filters.Count; i++)
             {
@@ -274,6 +299,7 @@ namespace EngineSynth.Gui.Model
 
             Samples = cfg.Samples;
             Filters = cfg.Filters;
+            Resonances = cfg.Resonances;
 
             OnStateChanged();
         }
@@ -293,6 +319,7 @@ namespace EngineSynth.Gui.Model
             }
             cfg.Samples.AddRange(Samples);
             cfg.Filters.AddRange(Filters);
+            cfg.Resonances.AddRange(Resonances);
 
             cfg.Save(ExportPath + "/" + Name + ".ecfg");
         }
