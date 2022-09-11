@@ -88,6 +88,24 @@ namespace EngineSynth.Audio
             return this;
         }
 
+        public float GetSampleAt(float realPos)
+        {
+            int sampleStart = (int)realPos;
+            int sampleEnd = sampleStart + 1;
+            float t = realPos - (float)sampleStart;
+            float x0 = Buffer[sampleStart - 1];
+            float x1 = Buffer[sampleStart];
+            float x2 = Buffer[sampleEnd];
+            float x3 = Buffer[sampleEnd + 1];
+
+
+            float c1 = .5F * (x2 - x0);
+            float c2 = x0 - (2.5F * x1) + (2 * x2) - (.5F * x3);
+            float c3 = (.5F * (x3 - x0)) + (1.5F * (x1 - x2));
+
+            return (((((c3 * t) + c2) * t) + c1) * t) + x1;
+        }
+
         public Sample Clone()
         {
             Sample sample = new Sample(Length, SampleRate);
@@ -145,14 +163,14 @@ namespace EngineSynth.Audio
 
             Array.Copy(Buffer, LoopStart, newBuffer, 0, len);
 
-            for (int i = 0; i < crossfade; i++)
-            {
-                float a = (float)i / crossfade;
-                newBuffer[i] = Buffer[i] * a + Buffer[Length - i - 1] * (1 - a);
-            }
+            //for (int i = 0; i < crossfade; i++)
+            //{
+            //    float a = (float)i / crossfade;
+            //    newBuffer[i] = Buffer[i] * a + Buffer[Length - i - 1] * (1 - a);
+            //}
 
-            Buffer = newBuffer;
             Length = len;
+            Buffer = newBuffer;
         }
     }
 }
