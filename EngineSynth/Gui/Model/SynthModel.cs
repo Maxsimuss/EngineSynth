@@ -3,10 +3,12 @@ using CSCore.Codecs.WAV;
 using CSCore.DSP;
 using EngineSynth.Audio;
 using EngineSynth.Game;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EngineSynth.Gui.Model
@@ -108,8 +110,7 @@ namespace EngineSynth.Gui.Model
             IsBusy = true;
             Task.Run(() =>
             {
-                random = new Random();
-                randomSeed = random.Next();
+                randomSeed = new Random().Next();
 
                 Sample[] samples = new Sample[Samples.Count];
                 for (int i = 0; i < Samples.Count; i++)
@@ -118,16 +119,17 @@ namespace EngineSynth.Gui.Model
                     SampleRate = samples[i].SampleRate;
                 }
 
-
-                SaveSound(Name + "_engine", samples, 500f, .25f);
-                SaveSound(Name + "_exhaust", samples, SampleRate / 2f, 1f);
-
+                List<Task> tasks = new List<Task>
+                {
+                    Task.Run(() => SaveSound(Name + "_engine", samples, 500f, .25f)),
+                    Task.Run(() => SaveSound(Name + "_exhaust", samples, SampleRate / 2f, 1f))
+                };
+                Task.WaitAll(tasks.ToArray());
                 IsBusy = false;
             });
         }
 
         private int SampleRate;
-        private Random random;
         private int randomSeed = 0;
         private double LongestSampleMs = 0;
 
@@ -152,11 +154,21 @@ namespace EngineSynth.Gui.Model
         {
             SfxBlendBuilder builder = new SfxBlendBuilder();
 
-            var samples = PreProcess(samplesIn, Math.Min(filterFreq, OffLoadFilter), gain);
-            SaveSounds(name, samples, SoundType.OffLoad, builder);
+            List<Task> tasks = new List<Task>
+            {
+                Task.Run(() => {
+                    var samplesOff = PreProcess(samplesIn, Math.Min(filterFreq, OffLoadFilter), gain);
+                    SaveSounds(name, samplesOff, SoundType.OffLoad, builder);
+                }),
+                Task.Run(() => {
+                    var samplesOn = PreProcess(samplesIn, filterFreq, gain);
+                    SaveSounds(name, samplesOn, SoundType.OnLoad, builder);
+                })
+            };
 
-            samples = PreProcess(samplesIn, filterFreq, gain);
-            SaveSounds(name, samples, SoundType.OnLoad, builder);
+            Task.WaitAll(tasks.ToArray());
+
+
 
             string jsonPath = ExportPath + "/art/sound/blends/";
             if (!Directory.Exists(jsonPath))
@@ -166,7 +178,7 @@ namespace EngineSynth.Gui.Model
 
         private void SaveSounds(string name, Sample[] samples, SoundType type, SfxBlendBuilder builder)
         {
-            random = new Random(randomSeed);
+            Random random = new Random(randomSeed);
 
             string artDir = "/art/sound/engine/" + name + "/";
             float gain = type == SoundType.OnLoad ? OnGain : OffGain;
@@ -178,7 +190,7 @@ namespace EngineSynth.Gui.Model
                     Directory.CreateDirectory(ExportPath + artDir);
                 using (WaveWriter waveWriter = new WaveWriter(wavPath, new WaveFormat(SampleRate, 32, 1, AudioEncoding.IeeeFloat)))
                 {
-                    float[] res = GenerateSound(rpm, samples, gain + (float)Math.Pow(rpm / 6000f, 2) * .2f);
+                    float[] res = GenerateSound(rpm, samples, gain, random);
 
                     waveWriter.WriteSamples(res, 0, res.Length);
                 }
@@ -187,7 +199,7 @@ namespace EngineSynth.Gui.Model
             }
         }
 
-        private unsafe float[] GenerateSound(int rpm, Sample[] samples, float gain)
+        private unsafe float[] GenerateSound(int rpm, Sample[] samples, float gain, Random random)
         {
             double msPerRotation = 1000 / (rpm / 60D);
             double msPerPS = msPerRotation / PowerPerRev;
@@ -200,13 +212,13 @@ namespace EngineSynth.Gui.Model
             List<int> positions = new List<int>();
             while (!result.Add((int)MsToSamples(nextSampleMs), samples[cylinderCounter % CylinderCount].Buffer))
             {
-                if (nextSampleMs > LongestSampleMs)
+                if (nextSampleMs > LongestSampleMs * 2)
                 {
                     positions.Add((int)MsToSamples(nextSampleMs));
                 }
 
                 cylinderCounter++;
-                nextSampleMs += msPerPS + (random.NextDouble()) * Randomness * msPerPS / 5;
+                nextSampleMs += msPerPS + (random.NextDouble() - .5) * Randomness * msPerPS / 5;
             }
 
             int last = (positions.Count - 1) / (int)CylinderCount * CylinderCount;
@@ -260,6 +272,26 @@ namespace EngineSynth.Gui.Model
             {
                 input.Filter(filters[j]);
             }
+
+            //float[] conv = new float[input.Length];
+            //float exhTemp = 300;
+            //float exhDmm = 2f;
+            //float ss = 331.4f + .6f * exhTemp;
+
+            //float t = exhDmm / 100f / ss * SampleRate;
+            //int a = 200;
+
+            //for (int i = (int)Math.Ceiling(a * t); i < input.Length - 2; i++)
+            //{
+            //    float f = 1f;
+            //    for (int j = 0; j < a; j++)
+            //    {
+            //        conv[i] += input.GetSampleAt(i - j * t) * f / a * 4;
+            //        f *= .99f;
+            //    }
+            //}
+
+            //input.Buffer = conv;
 
             input.Loop((int)MsToSamples(1));
 
