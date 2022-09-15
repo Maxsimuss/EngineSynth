@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>EngineSynth.Gui.App</StartupObject>
+    <StartupObject>EngineSynth.View.App</StartupObject>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseWPF>True</UseWPF>
   </PropertyGroup>
@@ -17,10 +17,7 @@
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
-    <Page Remove="Gui\App.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ApplicationDefinition Include="Gui\App.xaml" />
+    <ApplicationDefinition Include="View\App.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0-preview4" />

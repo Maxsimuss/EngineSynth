@@ -1,0 +1,190 @@
+﻿<Application x:Class="EngineSynth.View.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:math="http://hexinnovation.com/math">
+    <Application.Resources>
+        <ResourceDictionary>
+            <math:MathConverter x:Key="math" />
+            <Style x:Key="SliderRepeatButton" TargetType="RepeatButton">
+                <Setter Property="SnapsToDevicePixels" Value="true" />
+                <Setter Property="OverridesDefaultStyle" Value="true" />
+                <Setter Property="IsTabStop" Value="false" />
+                <Setter Property="Focusable" Value="false" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RepeatButton">
+                            <Border Background="Transparent" Height="{TemplateBinding Height}"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SliderThumb" TargetType="Thumb">
+                <Setter Property="SnapsToDevicePixels" Value="true" />
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Thumb">
+                            <Ellipse Height="{TemplateBinding Height}" Width="{TemplateBinding Height}" Fill="#3498db">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect ShadowDepth="0" Opacity=".25" BlurRadius="10" Color="#2c3e50"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style BasedOn="{StaticResource {x:Type Slider}}"
+               TargetType="{x:Type Slider}" x:Name="SliderStyle">
+                <Style.Setters>
+                    <Setter Property="Height" Value="20"/>
+                    <Setter Property="Margin" Value="10"/>
+                    <Setter Property="Focusable" Value="False"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Slider">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Grid.Row="1" FontSize="16">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0}: {1:N2}">
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                                <Binding ElementName="PART_Track" Path="Value"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <Border Grid.Column="1"
+                                        Background="#2980b9"
+                                        CornerRadius="{TemplateBinding Height, Converter={StaticResource math}, ConverterParameter=x/2}"
+                                        Height="{TemplateBinding Height}">
+                                        <Border.Effect>
+                                            <DropShadowEffect ShadowDepth="2" Direction="-25" Opacity=".125" BlurRadius="10"/>
+                                        </Border.Effect>
+                                    </Border>
+                                    <Track Grid.Column="1" x:Name="PART_Track">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Style="{StaticResource SliderRepeatButton}" Height="{TemplateBinding Height}"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb Style="{StaticResource SliderThumb}" Height="{TemplateBinding Height}"/>
+                                        </Track.Thumb>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Style="{StaticResource SliderRepeatButton}" Height="{TemplateBinding Height}"/>
+                                        </Track.IncreaseRepeatButton>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#2c3e50"/>
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="SnapsToDevicePixels" Value="True"></Setter>
+                </Style.Setters>
+            </Style>
+
+            <Style x:Key="Btn" TargetType="Button">
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Name="border" 
+                                    BorderBrush="Transparent" 
+                                    CornerRadius="10" 
+                                    Background="{TemplateBinding Background}">
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="1" Opacity=".25" BlurRadius="5" Color="#2c3e50"/>
+                                </Border.Effect>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="TabBtn" TargetType="Button">
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Name="border" 
+                                BorderBrush="Transparent" 
+                                CornerRadius="0" 
+                                Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" ClipToBounds="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="OverridesDefaultStyle" Value="true"/>
+                <Setter Property="IsTabStop" Value="false"/>
+                <Setter Property="Focusable" Value="false"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Thumb}">
+                            <Border CornerRadius="5" Background="{TemplateBinding Background}" BorderThickness="0"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <ControlTemplate x:Key="HorizontalScrollBar" TargetType="{x:Type ScrollBar}">
+                <Border Background="#F0F0F0" Margin="1">
+                    <Track Name="PART_Track" Grid.Column="1" IsDirectionReversed="False">
+                        <Track.Thumb>
+                            <Thumb Style="{StaticResource ScrollBarThumb}" Background="{TemplateBinding Background}" />
+                        </Track.Thumb>
+                    </Track>
+                </Border>
+            </ControlTemplate>
+            <ControlTemplate x:Key="VerticalScrollBar" TargetType="{x:Type ScrollBar}">
+                <Border Background="#F0F0F0" Margin="1">
+                    <Track Name="PART_Track" Grid.Column="1"  IsDirectionReversed="True">
+                        <Track.Thumb>
+                            <Thumb Style="{StaticResource ScrollBarThumb}" Background="{TemplateBinding Background}" />
+                        </Track.Thumb>
+                    </Track>
+                </Border>
+            </ControlTemplate>
+
+            <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="OverridesDefaultStyle" Value="true"/>
+                <Setter Property="Background" Value="#bdc3c7"/>
+                <Style.Triggers>
+                    <Trigger Property="Orientation" Value="Horizontal">
+                        <Setter Property="Width" Value="Auto"/>
+                        <Setter Property="Height" Value="10" />
+                        <Setter Property="Template" Value="{StaticResource HorizontalScrollBar}" />
+                    </Trigger>
+                    <Trigger Property="Orientation" Value="Vertical">
+                        <Setter Property="Width" Value="10"/>
+                        <Setter Property="Height" Value="Auto" />
+                        <Setter Property="Template" Value="{StaticResource VerticalScrollBar}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="InputField" TargetType="{x:Type TextBox}">
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="VerticalAlignment" Value="Stretch"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="TextAlignment" Value="Center"/>
+                <Setter Property="MaxLines" Value="1"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="#ecf0f1"/>
+                <Setter Property="CaretBrush" Value="#ecf0f1"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
