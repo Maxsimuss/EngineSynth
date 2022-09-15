@@ -44,6 +44,41 @@ namespace EngineSynth.Model.Audio
             source.Dispose();
         }
 
+        public Sample RemoveSilence()
+        {
+            float max = 0;
+
+            for (int i = 0; i < Length; i++)
+            {
+                max = MathF.Max(MathF.Abs(Buffer[i]), max);
+            }
+
+            // -40db
+            float treshhold = max / 100;
+
+            for (int i = 0; i < Length; i++)
+            {
+                if(MathF.Abs(Buffer[i]) > treshhold)
+                {
+                    LoopStart = i;
+                    break;
+                }
+            }
+
+            for (int i = Length - 1; i >= 0; i--)
+            {
+                if (MathF.Abs(Buffer[i]) > treshhold)
+                {
+                    LoopEnd = i;
+                    break;
+                }
+            }
+
+            Loop();
+
+            return this;
+        }
+
         public Sample LowPass(float freq, float res, float gain)
         {
             LowpassFilter filter = new LowpassFilter(SampleRate, Math.Min(SampleRate / 2F, freq));

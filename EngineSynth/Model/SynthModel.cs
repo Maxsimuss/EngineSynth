@@ -117,7 +117,7 @@ namespace EngineSynth.Model
                 Sample[] samples = new Sample[Samples.Count];
                 for (int i = 0; i < Samples.Count; i++)
                 {
-                    samples[i] = new Sample(Samples[i]);
+                    samples[i] = new Sample(Samples[i]).RemoveSilence();
                     SampleRate = samples[i].SampleRate;
                 }
 
