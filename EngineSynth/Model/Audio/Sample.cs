@@ -36,7 +36,7 @@ namespace EngineSynth.Model.Audio
             float[] tmp = new float[source.Length];
             source.Read(tmp, 0, (int)source.Length);
 
-            for (int i = 0; i < Length - 1; i++)
+            for (int i = 0; i <= Length - ch; i++)
             {
                 Buffer[i] = tmp[i * ch] * .2f;
             }
