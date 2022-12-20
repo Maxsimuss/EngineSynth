@@ -33,7 +33,7 @@ namespace EngineSynth.Model
         public List<FilterSetting> Filters;
         public List<ResonanceSetting> Resonances;
         public List<Setting> Settings;
-        private readonly Setting CylinderCount, PowerPerRev, Randomness, FilterFreq, OffLoadFilter, Pitch, MinRPM, MaxRPM, RPMInc, OnGain, OffGain, RpmGain, BaseFreqGain;
+        private readonly Setting CylinderCount, PowerPerRev, Randomness, FilterFreq, OffLoadFilter, Pitch, MinRPM, MaxRPM, RPMInc, OnGain, OffGain, RpmGain, BaseFreqGain, FilterQ;
 
         public SynthModel()
         {
@@ -46,6 +46,7 @@ namespace EngineSynth.Model
             PowerPerRev = AddSetting("Powerstrokes Per Revolution", 3, .5, 16, .5);
             Randomness = AddSetting("Randomness", .2, 0, 1, .01);
             FilterFreq = AddSetting("Sample Low Pass", 2000, 20, 20000, 1);
+            FilterQ = AddSetting("Sample Low Pass Q", 20, .01, 20, .01);
             OffLoadFilter = AddSetting("OffLoad Low Pass", 1500, 20, 20000, 1);
             Pitch = AddSetting("Sample Pitch", 1, .2, 2, .01);
             MinRPM = AddSetting("Min RPM", 500, 100, 2000, 100);
@@ -55,7 +56,6 @@ namespace EngineSynth.Model
             OffGain = AddSetting("Off Load Gain", .7, 0, 5, .01);
             RpmGain = AddSetting("Rpm Gain", .25, 0, 2, .01);
             BaseFreqGain = AddSetting("Base Frequency Gain", 0, -30, 30, .01);
-
         }
 
         private Setting AddSetting(string name, double value, double min, double max, double inc)
@@ -113,11 +113,12 @@ namespace EngineSynth.Model
             Task.Run(() =>
             {
                 randomSeed = new Random().Next();
+                Random rnd = new Random(randomSeed);
 
                 Sample[] samples = new Sample[Samples.Count];
                 for (int i = 0; i < Samples.Count; i++)
                 {
-                    samples[i] = new Sample(Samples[i]);
+                    samples[i] = new Sample(Samples[i]).RemoveSilence();
                     SampleRate = samples[i].SampleRate;
                 }
 
@@ -143,7 +144,7 @@ namespace EngineSynth.Model
             for (int i = 0; i < samplesIn.Length; i++)
             {
                 BiQuad f = new HighShelfFilter(SampleRate, FilterFreq, -12);
-                f.Q = 20;
+                f.Q = FilterQ;
 
                 Sample sample = samplesIn[i].Clone().Stretch(Pitch).LowPass(filterFreq, 5f, gain).Filter(f);
                 LongestSampleMs = Math.Max(LongestSampleMs, SamplesToMs(sample.Length));
@@ -184,24 +185,34 @@ namespace EngineSynth.Model
         {
             string artDir = "/art/sound/engine/" + name + "/";
             float gain = type == SoundType.OnLoad ? OnGain : OffGain;
-            for (int rpm = MinRPM; rpm <= MaxRPM; rpm += RPMInc)
+
+            bool mute = true;
+            for (int rpm = MinRPM - RPMInc; rpm <= MaxRPM; rpm += RPMInc)
             {
+                while (rpm <= 0)
+                {
+                    rpm += RPMInc;
+                    mute = false;
+                }
+
                 string fileName = rpm + type.Suffix + ".wav";
                 string wavPath = ExportPath + artDir + fileName;
                 if (!Directory.Exists(ExportPath + artDir))
                     Directory.CreateDirectory(ExportPath + artDir);
+
+                float[] sound = GenerateSound(rpm, samples, gain, mute ? 0 : 1);
+
                 using (WaveWriter waveWriter = new WaveWriter(wavPath, new WaveFormat(SampleRate, 32, 1, AudioEncoding.IeeeFloat)))
                 {
-                    float[] res = GenerateSound(rpm, samples, gain);
-
-                    waveWriter.WriteSamples(res, 0, res.Length);
+                    waveWriter.WriteSamples(sound, 0, sound.Length);
                 }
 
                 builder.Add(type, artDir + fileName, rpm);
+                mute = false;
             }
         }
 
-        private unsafe float[] GenerateSound(int rpm, Sample[] samples, float gain)
+        private unsafe float[] GenerateSound(int rpm, Sample[] samples, float gain, float masterVol)
         {
             Random random = new Random(randomSeed);
 
@@ -231,10 +242,10 @@ namespace EngineSynth.Model
             result.LoopEnd = positions[last];
             float baseFreq = (float)rpm * PowerPerRev / 60F;
 
-            return PostProcess(result, baseFreq, gain + rpm / 1000f * RpmGain);
+            return PostProcess(result, baseFreq, gain + rpm / 1000f * RpmGain, masterVol);
         }
 
-        private float[] PostProcess(Sample input, float baseFreq, float gain)
+        private float[] PostProcess(Sample input, float baseFreq, float gain, float masterVol)
         {
             List<BiQuad> filters = new List<BiQuad>
             {
@@ -242,10 +253,7 @@ namespace EngineSynth.Model
                 new LowpassFilter(SampleRate, 20000),
             };
 
-            foreach (ResonanceSetting f in Resonances)
-            {
-                filters.Add(new PeakFilter(SampleRate, baseFreq * f.Multiplier, 5, BaseFreqGain * f.Gain));
-            }
+
 
             for (int i = 0; i < Filters.Count; i++)
             {
@@ -253,11 +261,24 @@ namespace EngineSynth.Model
                 filters.Add(new PeakFilter(SampleRate, f.Frequency, 1 / f.Q, f.Gain));
             }
 
+
             float exhTemp = 300;
             float exhDmm = 5f;
             float ss = 331.4f + .6f * exhTemp;
 
             float t = exhDmm / 100f / ss * SampleRate;
+
+            foreach (ResonanceSetting f in Resonances)
+            {
+                (new PeakFilter(SampleRate, baseFreq * f.Multiplier, 10, BaseFreqGain * f.Gain)).Process(input.Buffer);
+            }
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                float val = input.Buffer[i] * gain;
+                float aVal = Math.Abs(val);
+                input.Buffer[i] = aVal / (aVal + 1) * Math.Sign(val) * masterVol;
+            }
 
             for (int j = 0; j < filters.Count; j++)
             {
@@ -266,12 +287,13 @@ namespace EngineSynth.Model
 
             input.Loop();
 
-            for (int i = 0; i < input.Length; i++)
-            {
-                float val = input.Buffer[i] * gain;
-                float aVal = Math.Abs(val);
-                input.Buffer[i] = aVal / (aVal + 1) * Math.Sign(val);
-            }
+
+            //for (int i = 0; i < input.Length; i++)
+            //{
+            //    float val = input.Buffer[i] * gain;
+            //    float aVal = Math.Abs(val);
+            //    input.Buffer[i] = aVal / (aVal + 1) * Math.Sign(val) * masterVol;
+            //}
 
             return input.Buffer;
         }
