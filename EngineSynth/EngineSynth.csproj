@@ -1,26 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>EngineSynth.View.App</StartupObject>
+    <StartupObject>EngineSynth.V2.EntryPoint</StartupObject>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseWPF>True</UseWPF>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="View\App.xaml" />
+    <None Remove="Resources\ic_round-stop.png" />
+    <None Remove="Resources\ph_play-fill.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0-preview4" />
+    <ApplicationDefinition Include="V1\View\App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
     <PackageReference Include="CSCore" Version="1.2.1.2" />
     <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
     <PackageReference Include="HandyControl" Version="3.3.0" />
@@ -29,6 +35,19 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+    <PackageReference Include="SkiaSharp" Version="2.88.3" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="V2\Util\" />
+  </ItemGroup>
+  <ItemGroup>
+	  <Resource Include="Resources\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="V2\View\AutomationComponent.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
     <Target Name="RemoveDuplicateAnalyzers" BeforeTargets="CoreCompile">
 	    <!-- Work around https://github.com/dotnet/wpf/issues/6792 -->
