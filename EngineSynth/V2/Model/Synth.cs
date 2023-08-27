@@ -16,7 +16,7 @@ namespace EngineSynth.V2.Model
         public Automation randomness = new Automation() { ScaleX = 20000, ScaleY = 1, Name = "Randomness" };
         public Automation samplePitch = new Automation() { ScaleX = 20000, ScaleY = 2, Name = "Pitch" };
         public Automation sampleLowpass = new Automation() { ScaleX = 20000, ScaleY = 20000, Name = "Lowpass" };
-        public Automation sampleHighpass = new Automation() { ScaleX = 20000, ScaleY = 20000, Name = "Highpass" };
+        public Automation sampleHighpass = new Automation() { ScaleX = 20000, ScaleY = 2000, Name = "Highpass" };
         public Automation HarmonicGain = new Automation() { ScaleX = 20000, ScaleY = 6, Name = "Harmonic Gain" };
         public List<Harmonic> Harmonics = new List<Harmonic>();
 
@@ -211,8 +211,8 @@ namespace EngineSynth.V2.Model
 
         public byte[] GenerateBuffer(float RPM, float prevRPM, bool load, int length)
         {
-            Sample result0 = GenerateLoopForRpm((int)prevRPM, 1, length, true);
-            Sample result1 = GenerateLoopForRpm((int)RPM, 1, length, true);
+            Sample result0 = GenerateLoopForRpm((int)prevRPM, 1, length, false);
+            Sample result1 = GenerateLoopForRpm((int)RPM, 1, length, false);
 
             Sample result = new Sample(Math.Max(result0.Length, result1.Length), INTERNAL_SAMPLERATE);
             int i = 0;

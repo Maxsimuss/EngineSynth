@@ -237,6 +237,8 @@ namespace EngineSynth.V2.ViewModel
                 SelectModFolder();
             }
 
+            if (modPath.Length < 1) return;
+
             BlendExporter blendExporter = new BlendExporter();
             blendExporter.ExportPath = modPath;
             blendExporter.Name = engineName;

@@ -39,8 +39,9 @@ namespace EngineSynth.V2.Model
             {
                 //int length = prevRPM == rpm ? 1000 : 100; // attempt at masking static sounds repeating
                 int length = 100;
-                byte[] _data = (Load ? onLoadSynth : offLoadSynth).GenerateBuffer(RPM, prevRPM, Load, length);
-                prevRPM = RPM;
+                float rpm = RPM;
+                byte[] _data = (Load ? onLoadSynth : offLoadSynth).GenerateBuffer(rpm, prevRPM, Load, length);
+                prevRPM = rpm;
 
                 for (int i = 0; i < _data.Length; i++)
                 {

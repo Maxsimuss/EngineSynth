@@ -11,7 +11,7 @@
         xmlns:dd="urn:gong-wpf-dragdrop"
         mc:Ignorable="d"
         Title="MainWindow" Height="563" Width="1000"
-        Background="Transparent" AllowsTransparency="True" WindowStyle="None">
+        Background="Transparent" AllowsTransparency="True" WindowStyle="None" ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <FontFamily x:Key="InterRegular">Resources/Fonts/Inter-Regular.ttf</FontFamily>
         <Style TargetType="{x:Type Label}">
@@ -239,26 +239,26 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <ListView ItemsSource="{Binding Automations}" HorizontalAlignment="Stretch">
-                    <ListView.Template>
+                <ListBox ItemsSource="{Binding Automations}" HorizontalAlignment="Stretch" Focusable="False">
+                    <ListBox.Template>
                         <ControlTemplate>
-                            <ScrollViewer CanContentScroll="False" Focusable="False">
-                                <ItemsPresenter></ItemsPresenter>
-                            </ScrollViewer>
+                            <hc:ScrollViewer CanContentScroll="False" CanMouseWheel="True" IsInertiaEnabled="True">
+                                <ItemsPresenter Focusable="False"></ItemsPresenter>
+                            </hc:ScrollViewer>
                         </ControlTemplate>
-                    </ListView.Template>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListViewItem}">
+                    </ListBox.Template>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
                             <Setter Property="Template">
                                 <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                         <local:AutomationComponent HorizontalAlignment="Stretch" Height="140" Automation="{Binding}"/>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
                         </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
                 <local:CustomSlider VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="24" Minimum="1000" Maximum="20000" TextFormat="RPM {0:0}" Value="{Binding CurrentRPM, Mode=TwoWay}"/>
             </Grid>
         </Grid>

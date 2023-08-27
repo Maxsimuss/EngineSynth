@@ -106,6 +106,7 @@ namespace EngineSynth.V2.View
         private void CanvasView_MouseMove(object sender, MouseEventArgs e)
         {
             if (!isMouseCaptured) return;
+            Mouse.Capture(CanvasView);
             System.Windows.Point position = e.GetPosition(this);
 
             Point p = canvasToPoint(new Point((float)position.X, (float)position.Y));
